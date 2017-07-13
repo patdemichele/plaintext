@@ -1,5 +1,0 @@
-// Server utilities source code.
-#includeusing namespace std;
-void example_method(int a) {
-  cout << a << endl;
-}
