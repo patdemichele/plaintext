@@ -16,13 +16,23 @@
 #include <iostream>
 using namespace std;
 
+
+string getHost(const string& data) {
+
+  string look_for = "Host: ";
+  size_t begin = data.find(look_for) + 6;
+  size_t end = data.find("\n", begin);
+  return data.substr(begin, end-begin);
+}
+
+
 // establishes an endpoint with the server.                                                     
 //client connects to a server.
 int createClientSocket(const string& host, unsigned short port) {
 
   struct hostent *he;
   he = gethostbyname(host.c_str());
-  if (he == NULL) return -1;
+  if (he == NULL){ cout <<"failure of gethostbyname when called on "<< host.c_str()<<endl; return -1;}
 
   int sock = socket(AF_INET, SOCK_STREAM, 0);
   if (sock < 0) return -1;

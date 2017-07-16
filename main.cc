@@ -17,7 +17,12 @@ int main(int argc, char* argv[]) {
     int connfd = accept(serverfd, (struct sockaddr *)&clientAddr, &clientAddrSize);
     char buf[1024];
     read(connfd, buf,1024);
+
+    string host = getHost(buf);
+    cout << "HOST="<<host << endl;
     printf("%s", buf);
+    int clientfd = createClientSocket(host, defaultPortNumber);
+    cout << "CLIENTFD = " << clientfd << endl;
     write(connfd, "Niven is an idiot", 17);
     close(connfd);
 
