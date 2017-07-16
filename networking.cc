@@ -6,6 +6,12 @@
 #include <unistd.h>               // for close                                 
 #include <cstring>                // for memset
 
+#include <arpa/inet.h>             // for htonl, htons, etc.
+
+
+
+
+
 #include <string> // for c++ string
 #include <iostream>
 using namespace std;
@@ -40,7 +46,7 @@ int createServerSocket(unsigned short portNum) {
   if (listenfd < 0) { cout << "listenfd initially -1\n"; return -1;}
 
   const int optval = 1;
-  setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &optval , sizeof(int));
+  if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &optval , sizeof(int)) < 0){ close(listenfd); cout <<"setsock error \n"; return -1; }
 
   struct sockaddr_in serverAddr;
   bzero(&serverAddr, sizeof(serverAddr));
@@ -50,12 +56,13 @@ int createServerSocket(unsigned short portNum) {
   struct sockaddr *sa = (struct sockaddr *) &serverAddr;
 
   if (::bind(listenfd, sa, sizeof(serverAddr)) < 0) {
+    close(listenfd);
     cout << "bind fail " << endl;
     return -1;
   }
 
   const size_t kMaxQueuedRequests = 128;
-  if (listen(listenfd, kMaxQueuedRequests) < 0){ cout << "listen error\n";  return -1; }
+  if (listen(listenfd, kMaxQueuedRequests) < 0){ cout << "listen error\n"; close(listenfd); return -1; }
   
   return listenfd;
 }
