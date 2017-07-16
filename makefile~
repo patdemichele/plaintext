@@ -1,4 +1,4 @@
-OBJS = htmlparser.o networking.o main.o
+OBJS = htmlparser.o server.o main.o
 CC = g++
 DEBUG = -g
 CFLAGS = -Wall -c $(DEBUG)
@@ -10,8 +10,8 @@ whatever : $(OBJS)
 htmlparser.o : htmlparser.h
 	$(CC) $(CFLAGS) htmlparser.cc
 
-server.o : networking.h
-	$(CC) $(CFLAGS) networking.cc
+server.o : server.h
+	$(CC) $(CFLAGS) server.cc
 
 clean:
 	\rm *.o *~ exe
