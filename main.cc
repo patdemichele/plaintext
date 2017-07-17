@@ -24,14 +24,13 @@ int readall(int fd, char* buf, int max_bytes, const char* sentinel) {
   return num_read;
 }
 
-int writeall(int fd, char* buf, int max_bytes, const char* sentinel) {
+int writeall(int fd, char* buf, int num_bytes) {
   int num_written = 0;
-  int sentinel_size = strlen(sentinel);
-  while (num_written < max_bytes) {
-    int bytes = write(fd, buf+num_written, max_bytes - num_written);
+
+  while (num_written < num_bytes) {
+    int bytes = write(fd, buf+num_written, num_bytes - num_written);
     if (bytes < 0) return -num_written;
     num_written += bytes;
-    if (num_written >= sentinel_size && strcmp(buf+num_written-sentinel_size, sentinel) == 0) return num_written;
   }
 
   return num_written;
@@ -56,9 +55,9 @@ int main(int argc, char* argv[]) {
 
     char buf[BUF_SIZE];
 
-    readall(connfd, buf, BUF_SIZE, "\r\n\r\n");
+    int num_read = readall(connfd, buf, BUF_SIZE, "\r\n\r\n");
     // TODO: error checking
-	
+    cout << "Initially read " << num_read << " bytes."<<endl;
     string host = getHost(buf);
     cout << "HOST="<<host << endl;
 
@@ -72,12 +71,12 @@ int main(int argc, char* argv[]) {
       continue;
     }
 	
-    int written=writeall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
+    int written=writeall(clientfd, buf, num_read);
     cout << "JUST WROTE " << written << " bytes"<<endl;
-    int bytes = readall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
-    cout << "RECEIVED " << bytes << " BYTES "<<endl<<"\033[1;31m"<<buf<<"\033[0m";
+    num_read= readall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
+    cout << "RECEIVED " << num_read << " BYTES "<<endl<<"\033[1;31m"<<buf<<"\033[0m";
     
-    writeall(connfd, buf, BUF_SIZE, "\r\n\r\n");
+    writeall(connfd, buf, num_read);
     close(connfd);
 
     cout<<endl<<endl;
