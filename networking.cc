@@ -18,9 +18,8 @@ string getHost(const string& data) {
 
   string look_for = "Host: ";
   size_t begin = data.find(look_for) + look_for.size();
-  size_t end = data.find("\n", begin);
-  end = min(end, data.find(":",begin));
-  return data.substr(begin, end-begin-1);
+  size_t end = min(data.find("\n", begin), data.find(":",begin));
+  return  data.substr(begin, end-begin-1);
 }
 
 
