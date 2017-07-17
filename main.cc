@@ -24,9 +24,26 @@ int readall(int fd, char* buf, int max_bytes, const char* sentinel) {
   return num_read;
 }
 
+int writeall(int fd, char* buf, int max_bytes, const char* sentinel) {
+  int num_written = 0;
+  int sentinel_size = strlen(sentinel);
+  while (num_written < max_bytes) {
+    int bytes = write(fd, buf+num_written, max_bytes - num_written);
+    if (bytes < 0) return -num_written;
+    num_written += bytes;
+    if (num_written >= sentinel_size && strcmp(buf+num_written-sentinel_size, sentinel) == 0) return num_written;
+  }
+
+  return num_written;
+
+}
+
+
+
+
 // sequential implementation of a simple proxy server.
 int main(int argc, char* argv[]) {
-  static const int BUF_SIZE = 1024;
+  static const int BUF_SIZE = 1 << 16;
   
   int serverfd = createServerSocket((unsigned short)12345); // magic number. for now.
 
@@ -50,9 +67,17 @@ int main(int argc, char* argv[]) {
 	
     int clientfd = createClientSocket(host, defaultPortNumber);
     cout << "CLIENTFD = " << clientfd << endl;
-    if (clientfd > 0) close(clientfd);
+    if (clientfd < 0) {
+      cout << "client error" << endl;
+      continue;
+    }
 	
-    write(connfd, "Niven is an idiot", 17);
+    int written=writeall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
+    cout << "JUST WROTE " << written << " bytes"<<endl;
+    int bytes = readall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
+    cout << "RECEIVED " << bytes << " BYTES "<<endl<<"\033[1;31m"<<buf<<"\033[0m";
+    
+    writeall(connfd, buf, BUF_SIZE, "\r\n\r\n");
     close(connfd);
 
     cout<<endl<<endl;
