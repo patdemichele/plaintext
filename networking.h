@@ -2,10 +2,14 @@
 // Server utilies. createServerSocket, etc.
 #include <string>
 
-std::string getHost(const std::string& data);
+extern std::string getHost(const std::string& data);
+
+extern std::string getPath(const std::string& data);
+
+extern std::string updateGET(const std::string& header, const std::string& path);
 
 // returns fd
-int createClientSocket(const std::string& host, unsigned short port);
+extern int createClientSocket(const std::string& host, unsigned short port);
 
 // returns listenfd, or -1.
-int createServerSocket(unsigned short portNum);
+extern int createServerSocket(unsigned short portNum);

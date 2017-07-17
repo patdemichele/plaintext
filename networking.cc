@@ -22,6 +22,25 @@ string getHost(const string& data) {
   return  data.substr(begin, end-begin-1);
 }
 
+string getPath(const string& header) {
+  static const string needle = "http://";
+  
+  size_t begin = header.find("GET");
+  begin = header.find(needle, begin) + needle.size();
+
+  begin = header.find("/", begin);
+  size_t end = header.find(" ", begin);
+
+  return header.substr(begin, end-begin);
+}
+
+string updateGET(const string& header, const string& path) {
+  size_t begin = header.find("GET") + 4;
+  size_t end = header.find(" ", begin);
+
+  string ret = header;
+  return ret.replace(begin, end-begin, path);
+}
 
 // establishes an endpoint with the server.                                                     
 //client connects to a server.

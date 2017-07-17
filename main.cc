@@ -24,7 +24,7 @@ int readall(int fd, char* buf, int max_bytes, const char* sentinel) {
   return num_read;
 }
 
-int writeall(int fd, char* buf, int num_bytes) {
+int writeall(int fd, const char* buf, int num_bytes) {
   int num_written = 0;
 
   while (num_written < num_bytes) {
@@ -59,9 +59,13 @@ int main(int argc, char* argv[]) {
     // TODO: error checking
     cout << "Initially read " << num_read << " bytes."<<endl;
     string host = getHost(buf);
+	string path = getPath(buf);
     cout << "HOST="<<host << endl;
+	cout << "PATH="<<path << endl;
 
-    cout<<"Received request:"<<endl <<"\033[1;31m"<<buf<<"\033[0m";
+	string req = updateGET(buf, path);
+
+    cout<<"Received (modified) request:"<<endl <<"\033[1;31m"<<req<<"\033[0m";
     //printf("%s", buf);
 	
     int clientfd = createClientSocket(host, defaultPortNumber);
@@ -71,15 +75,11 @@ int main(int argc, char* argv[]) {
       continue;
     }
 	
-    int written=writeall(clientfd, buf, num_read);
+    int written=writeall(clientfd, req.c_str(), req.size());
     cout << "JUST WROTE " << written << " bytes"<<endl;
     num_read = readall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
-	// Possibly ^^^^^ only reads the header and we need a second call to get the payload
-	//num_read += readall(clientfd, buf + num_read, BUF_SIZE - num_read, "\r\n\r\n");
 	cout << "RECEIVED " << num_read << " BYTES "<<endl;
-	cout<<"Received response:"<<endl<<"\033[2;36m"<<buf<<"\033[0m";
-
-	
+	cout<<"Received response:"<<endl<<"\033[2;36m"<<buf<<"\033[0m";	
 	
     writeall(connfd, buf, num_read);
     close(connfd);

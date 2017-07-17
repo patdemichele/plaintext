@@ -1,7 +1,7 @@
 OBJS = htmlparser.o networking.o main.o
 CC = g++
 DEBUG = -g
-CFLAGS = -Wall -c -std=c++14 $(DEBUG)
+CFLAGS = -Wall -c -std=c++11 $(DEBUG)
 LFLAGS = -Wall $(DEBUG)
 
 exe : $(OBJS)
