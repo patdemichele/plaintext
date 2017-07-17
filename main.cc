@@ -16,7 +16,7 @@ int readall(int fd, char* buf, int max_bytes, const char* sentinel) {
   int sentinel_size = strlen(sentinel);
   while (num_read < max_bytes) {
     int bytes = read(fd, buf + num_read, max_bytes - num_read);
-    //if (bytes == 0) return num_read;
+    if (bytes == 0) return num_read;
     if (bytes < 0) return -num_read;
     num_read += bytes;
     if (num_read >= sentinel_size && strcmp(buf + num_read - sentinel_size, sentinel) == 0) return num_read;
@@ -73,12 +73,17 @@ int main(int argc, char* argv[]) {
 	
     int written=writeall(clientfd, buf, num_read);
     cout << "JUST WROTE " << written << " bytes"<<endl;
-    num_read= readall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
-    cout << "RECEIVED " << num_read << " BYTES "<<endl<<"\033[1;31m"<<buf<<"\033[0m";
-    
+    num_read = readall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
+	// Possibly ^^^^^ only reads the header and we need a second call to get the payload
+	//num_read += readall(clientfd, buf + num_read, BUF_SIZE - num_read, "\r\n\r\n");
+	cout << "RECEIVED " << num_read << " BYTES "<<endl;
+	cout<<"Received response:"<<endl<<"\033[2;36m"<<buf<<"\033[0m";
+
+	
+	
     writeall(connfd, buf, num_read);
     close(connfd);
-
+	
     cout<<endl<<endl;
   }
   cout << "Server is running ... just kidding" << endl;
