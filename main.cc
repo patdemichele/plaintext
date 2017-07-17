@@ -29,12 +29,15 @@ int main(int argc, char* argv[]) {
   static const int BUF_SIZE = 1024;
   
   int serverfd = createServerSocket((unsigned short)12345); // magic number. for now.
+
   cout << "SERVER FD " << serverfd << endl;
   while (true) {
     struct sockaddr_in clientAddr;
     socklen_t clientAddrSize = sizeof(clientAddr);
     int connfd = accept(serverfd, (struct sockaddr *)&clientAddr, &clientAddrSize);
-    char buf[BUF_SIZE];
+	if (connfd < 0) continue;
+
+	char buf[BUF_SIZE];
 
 	readall(connfd, buf, BUF_SIZE, "\r\n\r\n");
 	// TODO: error checking
@@ -48,6 +51,8 @@ int main(int argc, char* argv[]) {
 	
 	int clientfd = createClientSocket(host, defaultPortNumber);
     cout << "CLIENTFD = " << clientfd << endl;
+	if (clientfd > 0) close(clientfd);
+	
     write(connfd, "Niven is an idiot", 17);
     close(connfd);
 
