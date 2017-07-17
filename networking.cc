@@ -26,29 +26,20 @@ string getHost(const string& data) {
 // establishes an endpoint with the server.                                                     
 //client connects to a server.
 int createClientSocket(const string& host, unsigned short port) {
-  struct hostent *he;
-  he = gethostbyname(host.c_str());
-  if (he == NULL) {
-	herror("gethostbyname");
-	cout <<"failure of gethostbyname when called on "<< host.c_str()<<endl;
+  struct addrinfo *res;
+  int err = getaddrinfo(host.c_str(), to_string(port).c_str(), NULL, &res);
+  if (err != 0) {
+	cout<<"getaddrinfo failed on input "<<host.c_str()<<endl
+	    <<"\terror: "<<gai_strerror(err)<<endl;
 	return -1;
   }
 
-  int sock = socket(AF_INET, SOCK_STREAM, 0);
-  if (sock < 0) return -1;
-
-  struct sockaddr_in serverAddress;
-  memset(&serverAddress, 0, sizeof(serverAddress));
-  serverAddress.sin_family = AF_INET;
-  serverAddress.sin_port = htons(port);
-  serverAddress.sin_addr.s_addr = ((struct in_addr *)he->h_addr)->s_addr;
-
-  if (connect(sock, (struct sockaddr *) &serverAddress, 
-	      sizeof(serverAddress)) != 0) {
-    close(sock);
-    return -1;
+  for (struct addrinfo* curr = res; curr != NULL; curr = curr->ai_next) {
+	int sock = socket(curr->ai_family, curr->ai_socktype, curr->ai_protocol);
+	if (sock != -1 && connect(sock, curr->ai_addr, curr->ai_addrlen) != -1) return sock;
+	close(sock);
   }
-  return sock;
+  return -1;
 }
 //host makes itself a server on portNum.
 int createServerSocket(unsigned short portNum) {

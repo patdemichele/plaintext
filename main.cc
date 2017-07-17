@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
+#include <cassert>
 
 using namespace std;
 
@@ -35,22 +36,22 @@ int main(int argc, char* argv[]) {
     int connfd = accept(serverfd, (struct sockaddr *)&clientAddr, &clientAddrSize);
     char buf[BUF_SIZE];
 
-	int request_len = readall(connfd, buf, BUF_SIZE, "\r\n\r\n");
+	readall(connfd, buf, BUF_SIZE, "\r\n\r\n");
 	// TODO: error checking
-	buf[request_len] = '\0';
 	
     string host = getHost(buf);
 	cout << "HOST="<<host << endl;
 
 	cout<<"Received request:"<<endl
-	    <<"\033[1;31m"<<buf<<"\033[0m"<<endl;;
+	    <<"\033[1;31m"<<buf<<"\033[0m";
 	//printf("%s", buf);
-
+	
 	int clientfd = createClientSocket(host, defaultPortNumber);
     cout << "CLIENTFD = " << clientfd << endl;
     write(connfd, "Niven is an idiot", 17);
     close(connfd);
 
+	cout<<endl<<endl;
   }
   cout << "Server is running ... just kidding" << endl;
 
