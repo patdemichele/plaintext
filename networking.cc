@@ -36,9 +36,8 @@ string getPath(const string& header) {
 }
 
 string updateGET(const string& header, const string& path) {
-  size_t begin = header.find("GET") + 4;
+  size_t begin = header.find(" ") + 1;
   size_t end = header.find(" ", begin);
-
   string ret = header;
   return ret.replace(begin, end-begin, path);
 }
