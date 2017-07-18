@@ -1,4 +1,4 @@
-OBJS = htmlparser.o networking.o main.o
+OBJS = htmlparser.o networking.o readwrite.o main.o
 CC = g++
 DEBUG = -g
 CFLAGS = -Wall -c -std=c++11 $(DEBUG)
@@ -13,14 +13,11 @@ htmlparser.o : htmlparser.h htmlparser.cc
 networking.o : networking.h networking.cc
 	$(CC) $(CFLAGS) networking.cc
 
+readwrite.o : readwrite.h readwrite.cc
+	$(CC) $(CFLAGS) readwrite.cc
+
 main.o : main.cc
 	$(CC) $(CFLAGS) main.cc
-
-new : new.o networking.o
-	$(CC) $(LFLAGS) new.o networking.o -o new
-
-new.o : new.cc
-	$(CC) $(CFLAGS) new.cc
 
 clean:
 	\rm *.o *~ exe

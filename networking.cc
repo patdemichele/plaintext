@@ -1,5 +1,6 @@
 // server utility methods here
 #include "networking.h"
+#include "readwrite.h"
 #include <netdb.h>                // for gethostbyname
 #include <sys/socket.h>           // for socket, AF_INET
 #include <sys/types.h>            // for SOCK_STREAM
