@@ -58,6 +58,7 @@ int main(int argc, char* argv[]) {
     int num_read = readall(connfd, buf, BUF_SIZE, "\r\n\r\n");
     // TODO: error checking
     cout << "Initially read " << num_read << " bytes."<<endl;
+    cout << "Initial request " << buf << endl;
     string host = getHost(buf);
 	string path = getPath(buf);
     cout << "HOST="<<host << endl;
@@ -76,9 +77,10 @@ int main(int argc, char* argv[]) {
     }
 	
     int written=writeall(clientfd, req.c_str(), req.size());
-    cout << "JUST WROTE " << written << " bytes"<<endl;
+    cout << "JUST WROTE " << written << " bytes AS REQUEST TO WEBSITE"<<endl;
+    cout << "Content: " << req << endl;
     num_read = readall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
-	cout << "RECEIVED " << num_read << " BYTES "<<endl;
+	cout << "RECEIVED FROM WEBSITE" << num_read << " BYTES "<<endl;
 	cout<<"Received response:"<<endl<<"\033[2;36m"<<buf<<"\033[0m";	
 	
     writeall(connfd, buf, num_read);
