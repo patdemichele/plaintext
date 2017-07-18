@@ -60,11 +60,11 @@ int main(int argc, char* argv[]) {
     cout << "Initially read " << num_read << " bytes."<<endl;
     cout << "Initial request " << buf << endl;
     string host = getHost(buf);
-	string path = getPath(buf);
+    string path = getPath(buf);
     cout << "HOST="<<host << endl;
-	cout << "PATH="<<path << endl;
+    cout << "PATH="<<path << endl;
 
-	string req = updateGET(buf, path);
+    string req = updateGET(buf, path);
 
     cout<<"Received (modified) request:"<<endl <<"\033[1;31m"<<req<<"\033[0m";
     //printf("%s", buf);

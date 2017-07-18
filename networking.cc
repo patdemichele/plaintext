@@ -18,20 +18,16 @@ string getHost(const string& data) {
 
   string look_for = "Host: ";
   size_t begin = data.find(look_for) + look_for.size();
-  size_t end = min(data.find("\n", begin), data.find(":",begin)+1);
+  size_t end = data.find("\n", begin);
   return  data.substr(begin, end-begin-1);
 }
 
 string getPath(const string& header) {
-  static const string needle = "http://";
-  
-  size_t begin = header.find("GET");
-  begin = header.find(needle, begin) + needle.size();
-
-  begin = header.find("/", begin);
+  size_t begin = header.find(getHost(header)) + getHost(header).size();
   size_t end = header.find(" ", begin);
-
-  return header.substr(begin, end-begin);
+  string path = header.substr(begin,end-begin);
+  if (path.size() == 0 || path[0] != '/') path = "/"+path;
+  return path;
 }
 
 string updateGET(const string& header, const string& path) {
