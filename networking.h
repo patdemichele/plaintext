@@ -6,6 +6,8 @@ extern std::string getHost(const std::string& data);
 
 extern std::string getPath(const std::string& data);
 
+extern std::string getMethod(const std::string& header);
+
 extern std::string updateGET(const std::string& header, const std::string& path);
 
 extern std::string splitHost(const std::string& host, unsigned short& port);

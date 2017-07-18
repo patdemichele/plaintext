@@ -19,7 +19,9 @@ int readall(int fd, char* buf, int max_bytes, const char* sentinel) {
     if (bytes == 0) return num_read;
     if (bytes < 0) return -num_read;
     num_read += bytes;
-    if (num_read >= sentinel_size && strcmp(buf + num_read - sentinel_size, sentinel) == 0) return num_read;
+    if (num_read >= sentinel_size && strncmp(buf + num_read - sentinel_size, sentinel, sentinel_size) == 0) return num_read;
+
+	cout<<"bytes (read) = "<<bytes<<" | last four are "<<(int)buf[num_read-4]<<" and "<<(int)buf[num_read-3]<<" and "<<(int)buf[num_read-2]<<" and "<<(int)buf[num_read-1]<<endl;
   }
   return num_read;
 }
@@ -31,6 +33,8 @@ int writeall(int fd, const char* buf, int num_bytes) {
     int bytes = write(fd, buf+num_written, num_bytes - num_written);
     if (bytes < 0) return -num_written;
     num_written += bytes;
+
+	cout<<"bytes (write)= "<<bytes<<endl;
   }
 
   return num_written;
@@ -56,6 +60,7 @@ int main(int argc, char* argv[]) {
     char buf[BUF_SIZE];
 
     int num_read = readall(connfd, buf, BUF_SIZE, "\r\n\r\n");
+   
     // TODO: error checking
     cout << "Initially read " << num_read << " bytes."<<endl;
     cout << "Initial request " << buf << endl;
@@ -63,9 +68,14 @@ int main(int argc, char* argv[]) {
 	unsigned short port = defaultPortNumber;
     string host = splitHost(getHost(buf), port);
     string path = getPath(buf);
+	string method = getMethod(buf);
+	
     cout << "HOST="<<host << endl;
     cout << "PATH="<<path << endl;
+	cout << "METHOD="<<method << endl;
 
+	//num_read += readall(connfd, buf + num_read, BUF_SIZE - num_read, "\r\n\r\n");
+	
     string req = updateGET(buf, path);
 
     cout<<"Received (modified) request:"<<endl <<"\033[1;31m"<<req<<"\033[0m";
@@ -85,8 +95,11 @@ int main(int argc, char* argv[]) {
 	cout << "RECEIVED FROM WEBSITE" << num_read << " BYTES "<<endl;
 	cout<<"Received response:"<<endl<<"\033[2;36m"<<buf<<"\033[0m";	
 	
-    writeall(connfd, buf, num_read);
-    close(connfd);
+    written = writeall(connfd, buf, num_read);
+	cout<<"Wrote "<<written<<" bytes to the browser"<<endl;
+
+	close(connfd);
+	close(clientfd);
 	
     cout<<endl<<endl;
   }

@@ -14,7 +14,6 @@
 using namespace std;
 
 string getHost(const string& data) {
-
   string look_for = "Host: ";
   size_t begin = data.find(look_for) + look_for.size();
   size_t end = data.find("\n", begin);
@@ -27,6 +26,10 @@ string getPath(const string& header) {
   string path = header.substr(begin,end-begin);
   if (path.size() == 0 || path[0] != '/') path = "/"+path;
   return path;
+}
+
+string getMethod(const string& header) {
+  return header.substr(0, header.find(" "));
 }
 
 string updateGET(const string& header, const string& path) {
