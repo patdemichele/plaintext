@@ -43,27 +43,10 @@ int writeall(int fd, const char* buf, int num_bytes) {
 
 
 
-string addForward(const string& req) {
-  string forward = "x-forwarded-proto: http";
-  size_t end = req.find("\r\n\r\n");
-  return req.substr(0,end)+"\n"+forward+"\r\n\r\n";
-}
 
-int main(int argc, char* argv[]) {
-  char buf[1<<16];
-  read(STDIN_FILENO, buf, 1<<16);
-  unsigned short port = defaultPortNumber;
-  string host = splitHost(getHost(buf), port);
-  int fd = createClientSocket(host, port);
-  string req = buf;
-  writeall(fd, buf, req.size());
-  readall(fd, buf, 1<<16, "\r\n\r\n");
-  cout << buf << endl;
-  return 0;
-}
 
 // sequential implementation of a simple proxy server.
-int main2(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
   static const int BUF_SIZE = 1 << 16;
   
   int serverfd = createServerSocket((unsigned short)12345); // magic number. for now.
@@ -89,7 +72,6 @@ int main2(int argc, char* argv[]) {
     cout << "PATH="<<path << endl;
 
     string req = updateGET(buf, path);
-    req = addForward(req);
     cout<<"Received (modified) request:"<<endl <<"\033[1;31m"<<req<<"\033[0m";
     //printf("%s", buf);
 	
