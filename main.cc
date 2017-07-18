@@ -49,8 +49,21 @@ string addForward(const string& req) {
   return req.substr(0,end)+"\n"+forward+"\r\n\r\n";
 }
 
-// sequential implementation of a simple proxy server.
 int main(int argc, char* argv[]) {
+  char buf[1<<16];
+  read(STDIN_FILENO, buf, 1<<16);
+  unsigned short port = defaultPortNumber;
+  string host = splitHost(getHost(buf), port);
+  int fd = createClientSocket(host, port);
+  string req = buf;
+  writeall(fd, buf, req.size());
+  readall(fd, buf, 1<<16, "\r\n\r\n");
+  cout << buf << endl;
+  return 0;
+}
+
+// sequential implementation of a simple proxy server.
+int main2(int argc, char* argv[]) {
   static const int BUF_SIZE = 1 << 16;
   
   int serverfd = createServerSocket((unsigned short)12345); // magic number. for now.
