@@ -59,7 +59,9 @@ int main(int argc, char* argv[]) {
     // TODO: error checking
     cout << "Initially read " << num_read << " bytes."<<endl;
     cout << "Initial request " << buf << endl;
-    string host = getHost(buf);
+
+	unsigned short port = defaultPortNumber;
+    string host = splitHost(getHost(buf), port);
     string path = getPath(buf);
     cout << "HOST="<<host << endl;
     cout << "PATH="<<path << endl;
@@ -69,7 +71,7 @@ int main(int argc, char* argv[]) {
     cout<<"Received (modified) request:"<<endl <<"\033[1;31m"<<req<<"\033[0m";
     //printf("%s", buf);
 	
-    int clientfd = createClientSocket(host, defaultPortNumber);
+    int clientfd = createClientSocket(host, port);
     cout << "CLIENTFD = " << clientfd << endl;
     if (clientfd < 0) {
       cout << "client error" << endl;

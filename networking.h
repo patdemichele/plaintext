@@ -8,6 +8,8 @@ extern std::string getPath(const std::string& data);
 
 extern std::string updateGET(const std::string& header, const std::string& path);
 
+extern std::string splitHost(const std::string& host, unsigned short& port);
+
 // returns fd
 extern int createClientSocket(const std::string& host, unsigned short port);
 

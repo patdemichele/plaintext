@@ -13,12 +13,6 @@
 #include <iostream>
 using namespace std;
 
-string stripColon(const string& url) {
-  size_t colon = url.find(":");
-  return url.substr(0,colon);
-
-}
-
 string getHost(const string& data) {
 
   string look_for = "Host: ";
@@ -42,11 +36,20 @@ string updateGET(const string& header, const string& path) {
   return ret.replace(begin, end-begin, path);
 }
 
+string splitHost(const string& host, unsigned short& port) {
+  size_t pos = host.find(":");
+  if (pos != string::npos) {
+	port = atoi(host.substr(pos+1).c_str());
+	return host.substr(0, pos);
+  }
+  return host;
+}
+
 // establishes an endpoint with the server.                                                     
 //client connects to a server.
 int createClientSocket(const string& host, unsigned short port) {
   struct addrinfo *res;
-  int err = getaddrinfo(stripColon(host).c_str(), to_string(port).c_str(), NULL, &res);
+  int err = getaddrinfo(host.c_str(), to_string(port).c_str(), NULL, &res);
   if (err != 0) {
 	cout<<"getaddrinfo failed on input "<<host.c_str()<<endl
 	    <<"\terror: "<<gai_strerror(err)<<endl;
