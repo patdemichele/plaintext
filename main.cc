@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
 	
     int written=writeall(clientfd, req.c_str(), req.size());
     cout << "JUST WROTE " << written << " bytes AS REQUEST TO WEBSITE"<<endl;
-    cout << "Content: " << req << endl;
+    cout << "Content same as written before" << endl;
     num_read = readall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
 	cout << "RECEIVED FROM WEBSITE" << num_read << " BYTES "<<endl;
 	cout<<"Received response:"<<endl<<"\033[2;36m"<<buf<<"\033[0m";	
