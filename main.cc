@@ -15,10 +15,13 @@ int readall(int fd, char* buf, int max_bytes, const char* sentinel) {
   int num_read = 0;
   int sentinel_size = strlen(sentinel);
   while (num_read < max_bytes) {
+    cout << "entering while loop for read"<<endl;
     int bytes = read(fd, buf + num_read, max_bytes - num_read);
+    cout << "read call over"<<endl;
     if (bytes == 0) return num_read;
     if (bytes < 0) return -num_read;
     num_read += bytes;
+    cout << "from fd="<<fd<<", read "<<num_read<<" bytes."<<endl;
     if (num_read >= sentinel_size && strcmp(buf + num_read - sentinel_size, sentinel) == 0) return num_read;
   }
   return num_read;
@@ -39,6 +42,12 @@ int writeall(int fd, const char* buf, int num_bytes) {
 
 
 
+
+string addForward(const string& req) {
+  string forward = "x-forwarded-proto: http";
+  size_t end = req.find("\r\n\r\n");
+  return req.substr(0,end)+"\n"+forward+"\r\n\r\n";
+}
 
 // sequential implementation of a simple proxy server.
 int main(int argc, char* argv[]) {
@@ -67,7 +76,7 @@ int main(int argc, char* argv[]) {
     cout << "PATH="<<path << endl;
 
     string req = updateGET(buf, path);
-
+    req = addForward(req);
     cout<<"Received (modified) request:"<<endl <<"\033[1;31m"<<req<<"\033[0m";
     //printf("%s", buf);
 	
