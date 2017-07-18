@@ -15,11 +15,14 @@ int readall(int fd, char* buf, int max_bytes, const char* sentinel) {
   int num_read = 0;
   int sentinel_size = strlen(sentinel);
   while (num_read < max_bytes) {
+    cout << "entering while loop for read"<<endl;
     int bytes = read(fd, buf + num_read, max_bytes - num_read);
+    cout << "read call over"<<endl;
     if (bytes == 0) return num_read;
     if (bytes < 0) return -num_read;
     num_read += bytes;
-    if (num_read >= sentinel_size && strncmp(buf + num_read - sentinel_size, sentinel, sentinel_size) == 0) return num_read;
+
+	if (num_read >= sentinel_size && strncmp(buf + num_read - sentinel_size, sentinel, sentinel_size) == 0) return num_read;
 
 	cout<<"bytes (read) = "<<bytes<<" | last four are "<<(int)buf[num_read-4]<<" and "<<(int)buf[num_read-3]<<" and "<<(int)buf[num_read-2]<<" and "<<(int)buf[num_read-1]<<endl;
   }
@@ -40,6 +43,8 @@ int writeall(int fd, const char* buf, int num_bytes) {
   return num_written;
 
 }
+
+
 
 
 
@@ -77,7 +82,6 @@ int main(int argc, char* argv[]) {
 	//num_read += readall(connfd, buf + num_read, BUF_SIZE - num_read, "\r\n\r\n");
 	
     string req = updateGET(buf, path);
-
     cout<<"Received (modified) request:"<<endl <<"\033[1;31m"<<req<<"\033[0m";
     //printf("%s", buf);
 	
