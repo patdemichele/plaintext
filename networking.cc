@@ -21,23 +21,21 @@ string getHost(const string& data) {
   return  data.substr(begin, end-begin-1);
 }
 
-string getPath(const string& header) {
-  size_t begin = header.find(getHost(header)) + getHost(header).size();
-  size_t end = header.find(" ", begin);
-  string path = header.substr(begin,end-begin);
-  if (path.size() == 0 || path[0] != '/') path = "/"+path;
-  return path;
-}
-
 string getMethod(const string& header) {
   return header.substr(0, header.find(" "));
 }
 
-string updateGET(const string& header, const string& path) {
-  size_t begin = header.find(" ") + 1;
-  size_t end = header.find(" ", begin);
-  string ret = header;
-  return ret.replace(begin, end-begin, path);
+char* updateRequestLine(char* header) {
+  char* beg = strstr(header, " ") + 1;
+  char* end = strstr(beg, " ");
+  
+  char* pbeg = end;
+  while (*(--pbeg) != '/');
+
+  size_t method_size = beg - header;
+  memcpy(pbeg - method_size, header, method_size);
+
+  return pbeg - method_size;
 }
 
 string splitHost(const string& host, unsigned short& port) {
