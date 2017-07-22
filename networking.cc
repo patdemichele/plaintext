@@ -65,13 +65,21 @@ int createClientSocket(const string& host, unsigned short port) {
   }
   return -1;
 }
+
 //host makes itself a server on portNum.
 int createServerSocket(unsigned short portNum) {
   int listenfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (listenfd < 0) { cout << "listenfd initially -1\n"; return -1;}
+  if (listenfd < 0) {
+	cout << "listenfd initially -1\n";
+	return -1;
+  }
 
   const int optval = 1;
-  if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &optval , sizeof(int)) < 0){ close(listenfd); cout <<"setsock error \n"; return -1; }
+  if (setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &optval , sizeof(int)) < 0) {
+	close(listenfd);
+	cout <<"setsock error \n";
+	return -1;
+  }
 
   struct sockaddr_in serverAddr;
   bzero(&serverAddr, sizeof(serverAddr));
@@ -87,7 +95,11 @@ int createServerSocket(unsigned short portNum) {
   }
 
   const size_t kMaxQueuedRequests = 128;
-  if (listen(listenfd, kMaxQueuedRequests) < 0){ cout << "listen error\n"; close(listenfd); return -1; }
+  if (listen(listenfd, kMaxQueuedRequests) < 0) {
+	cout << "listen error\n";
+	close(listenfd);
+	return -1;
+  }
   
   return listenfd;
 }

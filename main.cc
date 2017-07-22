@@ -28,20 +28,16 @@ int getClientRequest(int serverfd, char* buf, int& clientfd) {
   return num_read;
 }
 
-void modifyRequest(char*& buf, string& host, unsigned short& port) {
-  port = defaultPortNumber;
-  host = splitHost(getHost(buf), port);
+int getSiteResponse(string req, char* resp) {
+  unsigned short port = defaultPortNumber;
+  string host = splitHost(getHost(req), port);
+  string method = getMethod(req);
 
-  buf = updateRequestLine(buf);
-  string method = getMethod(buf);
+  if (host.find("firefox") != string::npos) return -1;
   
   cout << "HOST = " << host << endl;
   cout << "METHOD = " << method << endl;
   
-  cout << "Received (modified) request:" << endl << "\e[1;31m" << buf << "\e[0m";
-}
-
-int getSiteResponse(string host, unsigned short port, string req, char* resp) {
   int webfd = createClientSocket(host, port);
   cout << "WEBFD = " << webfd << endl;
   if (webfd < 0) {
@@ -78,19 +74,23 @@ int main(int argc, char* argv[]) {
 	// Need ability to change address pointed to
 	// address will only move forward so no fear of accessing unowned memory
 	char* buf_client = buf_client_arr;
-	
-	string host;
-	unsigned short port;
+    
 	int response_size;
 	int clientfd;
 	
-    if (getClientRequest(serverfd, buf_client, clientfd) < 0) continue;
-	modifyRequest(buf_client, host, port);
-	if ((response_size = getSiteResponse(host, port, buf_client, buf_web)) < 0) {
-	  close(clientfd);
+    if (getClientRequest(serverfd, buf_client, clientfd) < 0) {
+	  cout << "Failed to get client request" << endl;
 	  continue;
 	}
-	sendResponse(clientfd, buf_web, response_size);
+	buf_client = updateRequestLine(buf_client);
+  
+	cout << "Received (modified) request:" << endl << "\e[1;31m" << buf_client << "\e[0m";
+
+	if ((response_size = getSiteResponse(buf_client, buf_web)) >= 0) {
+	  sendResponse(clientfd, buf_web, response_size);
+	} else {
+	  cout << "Failed to get site response" << endl;
+	}
 
 	close(clientfd);
     cout<<endl<<endl;
