@@ -30,7 +30,13 @@ char* updateRequestLine(char* header) {
   char* end = strstr(beg, " ");
   
   char* pbeg = end;
-  while (*(--pbeg) != '/');
+  while (*(--pbeg) != '/') {
+	if (pbeg == beg) {
+	  pbeg = end-1;
+	  *pbeg = '/';
+	  break;
+	}
+  }
 
   size_t method_size = beg - header;
   memcpy(pbeg - method_size, header, method_size);
