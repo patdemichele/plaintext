@@ -8,17 +8,24 @@
 #include <cstring>
 #include <cassert>
 
+#include "ThreadPool/ThreadPool.h" // for threadpool
+
 #define BUF_SIZE  (1 << 16)
+// for threadpool
+#define POOL_SIZE (1 << 4)
 #define SERVER_PORT 12345
 
 using namespace std;
-int getClientRequest(int serverfd, char* buf, int& clientfd) {
+int getClientRequestFd(int serverfd) {
   struct sockaddr_in clientAddr;
   socklen_t clientAddrSize = sizeof(clientAddr);
   
-  clientfd = accept(serverfd, (struct sockaddr *)&clientAddr, &clientAddrSize);
+  int clientfd = accept(serverfd, (struct sockaddr *)&clientAddr, &clientAddrSize);
   if (clientfd < 0) return -1;
-  
+  return clientfd;
+}
+
+int getClientRequest(int clientfd, char* buf) {
   // reads client's request
   int num_read = readall(clientfd, buf, BUF_SIZE, "\r\n\r\n");
  
@@ -67,23 +74,31 @@ int main(int argc, char* argv[]) {
   int serverfd = createServerSocket(SERVER_PORT);
   cout << "SERVER FD " << serverfd << endl;
   cout << "Starting server at localhost: " << SERVER_PORT << endl;
+  
+  ThreadPool pool(POOL_SIZE);
+  
   while (true) {
-    char buf_client_arr[BUF_SIZE]; // used to store request sent from client
-    char buf_web[BUF_SIZE]; // populated when website responds to request
+    int clientfd;
+    clientfd = getClientRequestFd(serverfd);
+    if (clientfd < 0) {
+      cout << "Failed to get client request" << endl;
+      continue;
+    }
+    // thread the rest.
+    pool.enqueue([clientfd]{
+	char buf_client_arr[BUF_SIZE]; // used to store request sent from client
+	char buf_web[BUF_SIZE]; // populated when website responds to request
 
 	// Need ability to change address pointed to
 	// address will only move forward so no fear of accessing unowned memory
 	char* buf_client = buf_client_arr;
-    
 	int response_size;
-	int clientfd;
-	
-    if (getClientRequest(serverfd, buf_client, clientfd) < 0) {
-	  cout << "Failed to get client request" << endl;
-	  continue;
+	int success = getClientRequest(clientfd, buf_client);
+	if (success < 0) {
+	  cout << "Failure fetching client request data" << endl;
+	  return;
 	}
-	buf_client = updateRequestLine(buf_client);
-  
+    	buf_client = updateRequestLine(buf_client);
 	cout << "Received (modified) request:" << endl << "\e[1;31m" << buf_client << "\e[0m";
 
 	if ((response_size = getSiteResponse(buf_client, buf_web)) >= 0) {
@@ -91,10 +106,9 @@ int main(int argc, char* argv[]) {
 	} else {
 	  cout << "Failed to get site response" << endl;
 	}
-
 	close(clientfd);
-    cout<<endl<<endl;
+	cout << endl <<endl;
+      });
   }
-
   return 0;
 }
